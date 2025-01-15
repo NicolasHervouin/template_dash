@@ -17,6 +17,7 @@ layout = html.Div(
     [
         html.H2("DashBoard 2: Arthur", style={"text-align": "center"}),
 
+
         # Dropdown pour sélectionner le poulet
         dcc.Dropdown(
             id="chick-dropdown",
