@@ -42,5 +42,5 @@ def update_navbar(pathname):
         dcc.Link('Arthur', href='/page2', className='nav-link nav-link-active' if pathname == '/page2' else 'nav-link', style={'display': 'block', 'margin-bottom': '10px'}),
     ])
 
-if __name__ == '__main__':
-    app.run_server(debug=True) 
+if __name__ == "__main__":
+    app.run_server(debug=False, host="0.0.0.0", port=8080)

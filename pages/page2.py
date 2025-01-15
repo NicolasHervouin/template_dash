@@ -7,9 +7,9 @@ layout = html.Div([
     html.H2("DashBoard 2: Arthur", style={'text-align': 'center'})
     ])  
 
-@callback(
-)
-def function():
-    return
+# @callback(
+# )
+# def function():
+#     return
 
 
