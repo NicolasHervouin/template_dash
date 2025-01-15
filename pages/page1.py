@@ -4,7 +4,7 @@ import plotly.express as px
 
 # Charger les données
 try:
-    df = pd.read_csv('chickweight.csv')
+    df = pd.read_csv('data/chickweight.csv')
 except FileNotFoundError:
     print("Erreur : Fichier 'chickweight.csv' introuvable.")
     df = pd.DataFrame()

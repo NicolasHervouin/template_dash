@@ -4,10 +4,8 @@ import pandas as pd
 import plotly.express as px
 import os
 
-#%% Load_ext autoreload
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_PATH = os.path.join(BASE_DIR, 'data', 'chickweight.csv')
-df = pd.read_csv(DATA_PATH)
+df = pd.read_csv('data/chickweight.csv', sep=',')
+print(df.head())
 
 #%% Création de l'application
 register_page(__name__, path="/page2")
