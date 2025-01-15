@@ -19,32 +19,6 @@
 
    pip install -r requirements.txt
 
-## Configuration des Variables d'Environnement
-
-Certaines variables d’environnement sont nécessaires pour faire fonctionner ce projet (par exemple, des clés API). Suivez les étapes ci-dessous pour les configurer.
-
-1. **Créer un fichier `.env`** : Dans le répertoire racine du projet, créez un fichier nommé `.env` et ajoutez-y vos variables d'environnement sous le format suivant :
-
-   API_KEY="your_api_key_here"  
-
-2. **Charger les variables d'environnement depuis le terminal**.
-
-   - **Sur macOS/Linux** :  
-     Ouvrez votre terminal dans le répertoire du projet et exécutez la commande suivante :
-
-     "export $(grep -v '^#' .env | xargs)"
-
-   - **Sur Windows (PowerShell)** :  
-     Dans PowerShell, exécutez la commande suivante :
-
-     "Get-Content .env | ForEach-Object {  
-         $name, $value = $_ -split '=', 2  
-         [System.Environment]::SetEnvironmentVariable($name, $value)  
-     }""
-
-
 ## Exécution du Projet
-
-Après avoir chargé les variables d'environnement, vous pouvez exécuter le script principal :
 
    python app.py
