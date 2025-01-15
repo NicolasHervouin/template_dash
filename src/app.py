@@ -3,6 +3,8 @@ from dash import Dash, dcc, html, page_container, callback, Input, Output
 app = Dash(__name__, use_pages=True, suppress_callback_exceptions=True)
 app.config.suppress_callback_exceptions = True
 
+server=app.server
+
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     
