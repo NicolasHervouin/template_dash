@@ -2,28 +2,41 @@ from dash import html, dcc, register_page, Input, Output, callback
 import pandas as pd
 import plotly.express as px
 
-# Charger les données (remplacez 'votre_fichier.csv' par le chemin vers votre fichier)
+# Charger les données
 try:
-    df = pd.read_csv('votre_fichier.csv')
+    df = pd.read_csv('chickweight.csv')
 except FileNotFoundError:
-    print("Erreur : Fichier 'votre_fichier.csv' introuvable.")
-    df = pd.DataFrame()  # Créer un DataFrame vide en cas d'erreur
+    print("Erreur : Fichier 'chickweight.csv' introuvable.")
+    df = pd.DataFrame()
 
 register_page(__name__, path="/page1")
 
 layout = html.Div([
     html.H2("DashBoard 1: Matthieu", style={'text-align': 'center'}),
 
-    # Dropdown pour sélectionner la colonne à utiliser pour le graphique
-    dcc.Dropdown(
-        id='colonne-selection',
-        options=[{'label': col, 'value': col} for col in df.columns],
-        value=df.columns[0] if not df.empty else None,  # Sélectionner la première colonne par défaut si le DataFrame n'est pas vide
-        placeholder="Sélectionnez une colonne"
-    ),
+    # Premier graphique : Pie Chart pour la distribution des valeurs d'une colonne
+    html.Div([
+        html.H3("Distribution des valeurs d'une colonne"),
+        dcc.Dropdown(
+            id='colonne-pie-chart',
+            options=[{'label': col, 'value': col} for col in df.columns],
+            value=df.columns[0] if not df.empty else None,
+            placeholder="Sélectionnez une colonne"
+        ),
+        dcc.Graph(id='pie-chart')
+    ]),
 
-    # Graphique Pie Chart
-    dcc.Graph(id='pie-chart'),
+    # Deuxième graphique : Scatter plot pour l'évolution du poids en fonction du temps pour un poulet
+    html.Div([
+        html.H3("Evolution du poids en fonction du temps pour un poulet"),
+        dcc.Dropdown(
+            id='poulet-scatter-plot',
+            options=[{'label': chick, 'value': chick} for chick in df['Chick'].unique()],
+            value=df['Chick'].unique()[0] if not df.empty else None,
+            placeholder="Sélectionnez un poulet"
+        ),
+        dcc.Graph(id='scatter-plot')
+    ]),
 
     # Affichage d'informations supplémentaires
     html.Div(id='info-supplementaire')
@@ -31,59 +44,38 @@ layout = html.Div([
 
 @callback(
     Output('pie-chart', 'figure'),
-    Input('colonne-selection', 'value')
+    Input('colonne-pie-chart', 'value')
 )
 def update_pie_chart(colonne_selection):
-    """
-    Met à jour le graphique Pie Chart en fonction de la colonne sélectionnée.
-
-    Args:
-        colonne_selection (str): Nom de la colonne sélectionnée dans le dropdown.
-
-    Returns:
-        plotly.graph_objects.Figure: Figure du Pie Chart.
-    """
     if colonne_selection is None or df.empty:
-        return px.pie(title="Données non disponibles")  # Retourner un graphique vide avec un message si aucune donnée n'est disponible
+        return px.pie(title="Données non disponibles")
 
-    fig = px.pie(df, names=colonne_selection, title=f"Répartition de {colonne_selection}")
+    fig = px.pie(df, names=colonne_selection, title=f"Distribution de {colonne_selection}")
     return fig
 
 @callback(
-    Output('info-supplementaire', 'children'),
-    Input('colonne-selection', 'value')
+    Output('scatter-plot', 'figure'),
+    Input('poulet-scatter-plot', 'value')
 )
-def update_info_supplementaire(colonne_selection):
-    """
-    Affiche des informations supplémentaires sur la colonne sélectionnée.
+def update_scatter_plot(poulet_selection):
+    if poulet_selection is None or df.empty:
+        return px.scatter(title="Données non disponibles")
 
-    Args:
-        colonne_selection (str): Nom de la colonne sélectionnée dans le dropdown.
+    df_poulet = df[df['Chick'] == poulet_selection]
+    fig = px.scatter(df_poulet, x='Time', y='weight', color='Diet', 
+                     title=f"Evolution du poids du poulet {poulet_selection} en fonction du temps et du régime")
+    return fig
 
-    Returns:
-        str: Texte à afficher dans la div 'info-supplementaire'.
-    """
-    if colonne_selection is None or df.empty:
-        return "Aucune information supplémentaire disponible."
-
-    # Calculer et afficher des statistiques (exemple)
-    moyenne = df[colonne_selection].mean()
-    return f"Moyenne de {colonne_selection}: {moyenne:.2f}"
-
-# Callback supplémentaire (exemple : afficher le nombre de valeurs uniques)
+# Callback pour afficher des informations supplémentaires (exemple)
 @callback(
-    Output('pie-chart', 'clickData'),  # Output factice pour déclencher le callback
-    Input('colonne-selection', 'value')
+    Output('info-supplementaire', 'children'),
+    Input('pie-chart', 'clickData')
 )
-def afficher_nombre_valeurs_uniques(colonne_selection):
-    """
-    Affiche le nombre de valeurs uniques dans la colonne sélectionnée dans la console.
+def update_info_supplementaire(clickData):
+    if clickData is None or df.empty:
+        return "Cliquez sur une part du Pie Chart pour plus d'informations."
 
-    Args:
-        colonne_selection (str): Nom de la colonne sélectionnée dans le dropdown.
-    """
-    if colonne_selection is not None and not df.empty:
-        nombre_unique = df[colonne_selection].nunique()
-        print(f"Nombre de valeurs uniques dans {colonne_selection}: {nombre_unique}")
-    return None
-
+    valeur = clickData['points'][0]['label']
+    colonne = clickData['points'][0]['customdata'][0]  # Récupérer le nom de la colonne
+    nombre_occurrences = df[colonne].value_counts()[valeur]
+    return f"Nombre d'occurrences de {valeur} dans la colonne {colonne}: {nombre_occurrences}"
